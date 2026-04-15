@@ -1,7 +1,7 @@
 class ApiConstants {
   // Use optimal local IP for emulator or real device debugging.
   // For production, this should be the live server domain.
-  static const String baseUrl = "http://10.0.2.2:8000/api/v1";
+  static const String baseUrl = "http://10.140.183.183:8000/api/v1";
 
   // Auth
   static const String login = "$baseUrl/login";

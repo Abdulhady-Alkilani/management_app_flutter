@@ -138,7 +138,7 @@ Authorization: Bearer {YOUR_TOKEN_HERE}
 }
 ```
 
-**استجابة ناجحة (200 OK):** 
+**استجابة ناجحة (200 OK):**
 يعيد كائن السيرة الذاتية المُحدّث.
 
 ### 2.3 إضافة مهارات للسيرة الذاتية
@@ -193,7 +193,10 @@ Authorization: Bearer {YOUR_TOKEN_HERE}
 }
 ```
 
-### 2.6 تحديث حالة المهمة
+### 2.6 عرض تفاصيل مهمة محددة
+- **المسار:** `GET /engineer/tasks/{taskId}`
+
+### 2.7 تحديث حالة المهمة
 - **المسار:** `PUT /engineer/tasks/{taskId}`
 
 **جسم الطلب (Body):**
@@ -208,7 +211,9 @@ Authorization: Bearer {YOUR_TOKEN_HERE}
 ### 2.7 إدارة التقارير (Reports CRUD)
 
 **أ. جلب كافة التقارير:** `GET /engineer/reports`
-**ب. إرسال تقرير جديد:** `POST /engineer/reports`
+**ب. جلب تفاصيل تقرير محدد:** `GET /engineer/reports/{reportId}`
+(ستُرجع تفاصيل التقرير إن كان يخص نفس المهندس)
+**ت. إرسال تقرير جديد:** `POST /engineer/reports`
 **جسم الطلب:**
 ```json
 {
@@ -230,15 +235,15 @@ Authorization: Bearer {YOUR_TOKEN_HERE}
 
 ### 3.1 جلب السيرة الذاتية للعمال
 - **المسار:** `GET /worker/cv`
-(التفاصيل والاستجابة مطابقة لنقطة المهندس)
+  (التفاصيل والاستجابة مطابقة لنقطة المهندس)
 
 ### 3.2 تحديث السيرة الذاتية
 - **المسار:** `PUT /worker/cv`
-(التفاصيل مطابقة لنقطة المهندس)
+  (التفاصيل مطابقة لنقطة المهندس)
 
 ### 3.3 إضافة مهارات
 - **المسار:** `POST /worker/skills`
-(التفاصيل مطابقة لنقطة المهندس)
+  (التفاصيل مطابقة لنقطة المهندس)
 
 ### 3.4 جلب الورشات (Workshops)
 الورشات المعيّن فيها هذا العامل.
@@ -265,11 +270,14 @@ Authorization: Bearer {YOUR_TOKEN_HERE}
 
 ### 3.5 جلب المهام
 - **المسار:** `GET /worker/tasks`
-(الاستجابة مطابقة تماماً لنقطة المهندس)
+  (الاستجابة مطابقة تماماً لنقطة المهندس)
 
-### 3.6 تحديث حالة المهمة
+### 3.6 عرض تفاصيل مهمة محددة
+- **المسار:** `GET /worker/tasks/{taskId}`
+
+### 3.7 تحديث حالة المهمة
 - **المسار:** `PUT /worker/tasks/{taskId}`
-**جسم الطلب (Body):**
+  **جسم الطلب (Body):**
 ```json
 {
   "progress": 100,
@@ -284,18 +292,18 @@ Authorization: Bearer {YOUR_TOKEN_HERE}
 في حال فشل الـ Validation الدائم الخاص بـ Laravel، سيرجع خادم الـ API بيانات الخطأ كالتالي (422 Unprocessable Entity):
 ```json
 {
-    "message": "The given data was invalid.",
-    "errors": {
-        "username": [
-            "اسم المستخدم مطلوب."
-        ]
-    }
+  "message": "The given data was invalid.",
+  "errors": {
+    "username": [
+      "اسم المستخدم مطلوب."
+    ]
+  }
 }
 ```
 
 وفي حال رفض الصلاحية أو عدم وجود التوكن (401 Unauthorized):
 ```json
 {
-    "message": "Unauthenticated."
+  "message": "Unauthenticated."
 }
 ```
