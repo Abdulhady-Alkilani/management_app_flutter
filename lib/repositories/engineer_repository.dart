@@ -16,11 +16,16 @@ class EngineerRepository {
     return response.data;
   }
 
-  Future<Map<String, dynamic>> addSkills(List<String> skills) async {
+  Future<Map<String, dynamic>> addSkills(List<dynamic> skills) async {
     final response = await _dio.post(
       ApiConstants.engSkills,
       data: {'skills': skills},
     );
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> getAvailableSkills() async {
+    final response = await _dio.get(ApiConstants.skills);
     return response.data;
   }
 

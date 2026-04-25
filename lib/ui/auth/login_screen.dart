@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/theme/app_theme.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/locale_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -51,6 +52,7 @@ class _LoginScreenState extends State<LoginScreen>
     if (!_formKey.currentState!.validate()) return;
 
     final provider = Provider.of<AuthProvider>(context, listen: false);
+    final localizations = AppLocalizations.of(context)!;
     try {
       final success = await provider.login(
         _usernameController.text.trim(),
@@ -60,8 +62,7 @@ class _LoginScreenState extends State<LoginScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'فشل تسجيل الدخول. تحقق من البيانات.',
-              style: GoogleFonts.cairo(),
+              localizations.loginFailed,
             ),
             backgroundColor: AppTheme.error,
           ),
@@ -74,7 +75,6 @@ class _LoginScreenState extends State<LoginScreen>
           SnackBar(
             content: Text(
               e.toString().replaceAll('Exception: ', ''),
-              style: GoogleFonts.cairo(),
             ),
             backgroundColor: AppTheme.error,
           ),
@@ -86,15 +86,19 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   Widget build(BuildContext context) {
     final isLoading = context.watch<AuthProvider>().isLoading;
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
 
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: AppTheme.splashGradient,
-        ),
-        child: SafeArea(
+      body: Stack(
+        children: [
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: AppTheme.splashGradient,
+            ),
+            child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 28),
@@ -131,18 +135,16 @@ class _LoginScreenState extends State<LoginScreen>
                       const SizedBox(height: 24),
 
                       Text(
-                        'تسجيل الدخول',
-                        style: GoogleFonts.cairo(
-                          fontSize: 26,
+                        l10n.loginTitle,
+                        style: theme.textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'أدخل بياناتك للمتابعة',
-                        style: GoogleFonts.cairo(
-                          fontSize: 14,
+                        l10n.loginSubtitle,
+                        style: theme.textTheme.bodyMedium?.copyWith(
                           color: Colors.white.withAlpha(160),
                         ),
                       ),
@@ -171,7 +173,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 controller: _usernameController,
                                 textDirection: TextDirection.ltr,
                                 decoration: InputDecoration(
-                                  labelText: 'اسم المستخدم',
+                                  labelText: l10n.usernameLabel,
                                   prefixIcon: const Icon(
                                     Icons.person_outline_rounded,
                                     color: AppTheme.primaryBlue,
@@ -181,7 +183,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 ),
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
-                                    return 'يرجى إدخال اسم المستخدم';
+                                    return l10n.usernameHint;
                                   }
                                   return null;
                                 },
@@ -194,7 +196,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 obscureText: _obscurePassword,
                                 textDirection: TextDirection.ltr,
                                 decoration: InputDecoration(
-                                  labelText: 'كلمة المرور',
+                                  labelText: l10n.passwordLabel,
                                   prefixIcon: const Icon(
                                     Icons.lock_outline_rounded,
                                     color: AppTheme.primaryBlue,
@@ -217,7 +219,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 ),
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
-                                    return 'يرجى إدخال كلمة المرور';
+                                    return l10n.passwordHint;
                                   }
                                   return null;
                                 },
@@ -227,10 +229,10 @@ class _LoginScreenState extends State<LoginScreen>
                               // Login Button
                               SizedBox(
                                 width: double.infinity,
-                                height: 52,
                                 child: ElevatedButton(
                                   onPressed: isLoading ? null : _login,
                                   style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
                                     backgroundColor: AppTheme.primaryBlue,
                                     foregroundColor: Colors.white,
                                     disabledBackgroundColor:
@@ -250,10 +252,10 @@ class _LoginScreenState extends State<LoginScreen>
                                           ),
                                         )
                                       : Text(
-                                          'دخول',
-                                          style: GoogleFonts.cairo(
-                                            fontSize: 18,
+                                          l10n.loginButton,
+                                          style: theme.textTheme.titleMedium?.copyWith(
                                             fontWeight: FontWeight.w700,
+                                            color: Colors.white,
                                           ),
                                         ),
                                 ),
@@ -268,7 +270,52 @@ class _LoginScreenState extends State<LoginScreen>
               ),
             ),
           ),
-        ),
+            ),
+          ),
+          // ── Language Toggle Button ──
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 12,
+            left: 16,
+            right: 16,
+            child: Consumer<LocaleProvider>(
+              builder: (context, localeProvider, _) {
+                final isArabic = localeProvider.locale.languageCode == 'ar';
+                return Align(
+                  alignment: isArabic ? Alignment.centerLeft : Alignment.centerRight,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => localeProvider.toggleLocale(),
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withAlpha(30),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white.withAlpha(60)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.translate_rounded, color: Colors.white, size: 18),
+                            const SizedBox(width: 6),
+                            Text(
+                              isArabic ? 'English' : 'عربي',
+                              style: theme.textTheme.labelLarge?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

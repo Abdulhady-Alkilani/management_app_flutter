@@ -90,11 +90,15 @@ class _WorkerTaskDetailsScreenState extends State<WorkerTaskDetailsScreen> {
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
-            height: 50,
             child: ElevatedButton.icon(
               onPressed: () => _showUpdateTaskDialog(context),
-              icon: const Icon(Icons.edit_rounded),
-              label: Text('تحديث تقدم المهمة', style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.w700)),
+              icon: const Icon(Icons.edit_rounded, color: Colors.white),
+              label: Text('تحديث تقدم المهمة', style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryBlue,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
             ),
           ),
         ],
@@ -167,6 +171,14 @@ class _WorkerTaskDetailsScreenState extends State<WorkerTaskDetailsScreen> {
             ),
             ElevatedButton(
               onPressed: () async {
+                if (selectedStatus == 'مكتملة' && progress < 100) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('لا يمكن اختيار "مكتملة" إلا إذا كانت نسبة الإنجاز 100%'), backgroundColor: AppTheme.error));
+                  return;
+                }
+                if (progress == 100 && selectedStatus != 'مكتملة') {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('يجب أن تكون الحالة "مكتملة" إذا كانت نسبة الإنجاز 100%'), backgroundColor: AppTheme.error));
+                  return;
+                }
                 Navigator.pop(ctx);
                 final provider = context.read<WorkerProvider>();
                 final success = await provider.updateTask(widget.taskId, {
@@ -183,7 +195,12 @@ class _WorkerTaskDetailsScreenState extends State<WorkerTaskDetailsScreen> {
                   if (success) await _loadDetails();
                 }
               },
-              child: Text('حفظ', style: GoogleFonts.cairo()),
+              child: Text('حفظ', style: GoogleFonts.cairo(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryBlue,
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
             ),
           ],
         ),

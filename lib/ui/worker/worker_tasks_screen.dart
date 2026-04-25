@@ -57,7 +57,7 @@ class _WorkerTasksScreenState extends State<WorkerTasksScreen> {
           }
           return RefreshIndicator(
             onRefresh: () => provider.fetchTasks(),
-            child: ListView.builder(
+                        child: ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: provider.tasks.length,
               itemBuilder: (context, index) {
@@ -110,7 +110,7 @@ class _WorkerTasksScreenState extends State<WorkerTasksScreen> {
                 );
               },
             ),
-          );
+    );
         },
       ),
     );

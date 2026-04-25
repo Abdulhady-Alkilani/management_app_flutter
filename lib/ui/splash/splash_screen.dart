@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../providers/auth_provider.dart';
+import '../../l10n/app_localizations.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -132,8 +133,8 @@ class _SplashScreenState extends State<SplashScreen>
                   child: Column(
                     children: [
                       Text(
-                        'إدارة مشاريع البناء',
-                        style: GoogleFonts.cairo(
+                        AppLocalizations.of(context)!.appTitle,
+                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           fontSize: 28,
                           fontWeight: FontWeight.w800,
                           color: Colors.white,
@@ -143,7 +144,7 @@ class _SplashScreenState extends State<SplashScreen>
                       const SizedBox(height: 8),
                       Text(
                         'Hello',
-                        style: GoogleFonts.cairo(
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontSize: 16,
                           fontWeight: FontWeight.w400,
                           color: Colors.white.withAlpha(180),
@@ -172,8 +173,8 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'جاري التحميل...',
-                      style: GoogleFonts.cairo(
+                      AppLocalizations.of(context)!.loading,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontSize: 14,
                         color: Colors.white.withAlpha(150),
                       ),

@@ -37,7 +37,18 @@ class AppTheme {
   );
 
   // ─── Theme Data ──────────────────────────────────────────────
-  static ThemeData get lightTheme {
+  static ThemeData getTheme(Locale locale) {
+    final bool isAr = locale.languageCode == 'ar';
+    
+    // Dynamic Typography
+    final textTheme = isAr ? GoogleFonts.cairoTextTheme() : GoogleFonts.interTextTheme();
+    
+    TextStyle getTextStyle({double? fontSize, FontWeight? fontWeight, Color? color}) {
+      return isAr 
+        ? GoogleFonts.cairo(fontSize: fontSize, fontWeight: fontWeight, color: color)
+        : GoogleFonts.inter(fontSize: fontSize, fontWeight: fontWeight, color: color);
+    }
+
     return ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
@@ -49,7 +60,7 @@ class AppTheme {
         brightness: Brightness.light,
       ),
       scaffoldBackgroundColor: surfaceLight,
-      textTheme: GoogleFonts.cairoTextTheme().apply(
+      textTheme: textTheme.apply(
         bodyColor: textPrimary,
         displayColor: textPrimary,
       ),
@@ -58,7 +69,7 @@ class AppTheme {
         foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        titleTextStyle: GoogleFonts.cairo(
+        titleTextStyle: getTextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w700,
           color: Colors.white,
@@ -74,7 +85,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: GoogleFonts.cairo(
+          textStyle: getTextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
@@ -100,8 +111,8 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: error),
         ),
-        labelStyle: GoogleFonts.cairo(color: textSecondary),
-        hintStyle: GoogleFonts.cairo(color: textSecondary),
+        labelStyle: getTextStyle(color: textSecondary),
+        hintStyle: getTextStyle(color: textSecondary),
       ),
       cardTheme: CardThemeData(
         elevation: 2,

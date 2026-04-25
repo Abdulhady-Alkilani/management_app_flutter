@@ -50,7 +50,7 @@ class EngineerProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> addSkills(List<String> skills) async {
+  Future<bool> addSkills(List<dynamic> skills) async {
     _setLoading(true);
     try {
       await _repo.addSkills(skills);
@@ -61,6 +61,22 @@ class EngineerProvider extends ChangeNotifier {
       _errorMessage = e.toString();
       _setLoading(false);
       return false;
+    }
+  }
+
+  // ── Available Skills ──────────────────────────────────────
+  List<Map<String, dynamic>> _availableSkills = [];
+  List<Map<String, dynamic>> get availableSkills => _availableSkills;
+
+  Future<void> fetchAvailableSkills() async {
+    try {
+      final res = await _repo.getAvailableSkills();
+      if (res['success'] == true && res['data'] != null) {
+        _availableSkills = List<Map<String, dynamic>>.from(res['data']);
+        notifyListeners();
+      }
+    } catch (e) {
+      // ignore
     }
   }
 

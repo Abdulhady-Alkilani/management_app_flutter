@@ -255,48 +255,107 @@ class _EngineerCvScreenState extends State<EngineerCvScreen> {
   }
 
   void _showAddSkillsDialog(BuildContext context, EngineerProvider provider) {
+    provider.fetchAvailableSkills();
     final skillController = TextEditingController();
+    final Set<int> selectedSkillIds = {};
 
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('إضافة مهارات', style: GoogleFonts.cairo(fontWeight: FontWeight.w700)),
-        content: TextField(
-          controller: skillController,
-          decoration: const InputDecoration(
-            labelText: 'أدخل المهارات مفصولة بفواصل',
-            hintText: 'مثال: AutoCAD, Revit, Project Management',
-          ),
-          maxLines: 3,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text('إلغاء', style: GoogleFonts.cairo()),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(ctx);
-              final skills = skillController.text
-                  .split(',')
-                  .map((s) => s.trim())
-                  .where((s) => s.isNotEmpty)
-                  .toList();
-              if (skills.isEmpty) return;
-              final success = await provider.addSkills(skills);
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(success ? 'تمت إضافة المهارات بنجاح' : 'فشل إضافة المهارات'),
-                    backgroundColor: success ? AppTheme.success : AppTheme.error,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => ListenableBuilder(
+          listenable: provider,
+          builder: (ctx, _) => AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: Text('إضافة مهارات', style: GoogleFonts.cairo(fontWeight: FontWeight.w700)),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (provider.availableSkills.isNotEmpty) ...[
+                    Text('المهارات المتاحة:', style: GoogleFonts.cairo(fontWeight: FontWeight.w600, fontSize: 14)),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: provider.availableSkills.map((skill) {
+                        final id = skill['id'] as int;
+                        final name = skill['name'] as String;
+                        final isSelected = selectedSkillIds.contains(id);
+                        return FilterChip(
+                          label: Text(name),
+                          selected: isSelected,
+                          onSelected: (selected) {
+                            setDialogState(() {
+                              if (selected) {
+                                selectedSkillIds.add(id);
+                              } else {
+                                selectedSkillIds.remove(id);
+                              }
+                            });
+                          },
+                          selectedColor: AppTheme.primaryBlue.withAlpha(40),
+                          checkmarkColor: AppTheme.primaryBlue,
+                          labelStyle: GoogleFonts.cairo(
+                            color: isSelected ? AppTheme.primaryBlue : AppTheme.textPrimary,
+                            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 16),
+                    const Divider(),
+                    const SizedBox(height: 8),
+                  ],
+                  Text('أو أضف مهارات جديدة:', style: GoogleFonts.cairo(fontWeight: FontWeight.w600, fontSize: 14)),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: skillController,
+                    decoration: const InputDecoration(
+                      labelText: 'أدخل المهارات مفصولة بفواصل',
+                      hintText: 'مثال: AutoCAD, Revit, Project Management',
+                    ),
+                    maxLines: 3,
                   ),
-                );
-              }
-            },
-            child: Text('إضافة', style: GoogleFonts.cairo()),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: Text('إلغاء', style: GoogleFonts.cairo()),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  Navigator.pop(ctx);
+                  final List<dynamic> skills = skillController.text
+                      .split(',')
+                      .map((s) => s.trim())
+                      .where((s) => s.isNotEmpty)
+                      .map<dynamic>((s) {
+                        final intValue = int.tryParse(s);
+                        return intValue ?? s;
+                      })
+                      .toList();
+                  
+                  skills.addAll(selectedSkillIds);
+
+                  if (skills.isEmpty) return;
+                  final success = await provider.addSkills(skills);
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(success ? 'تمت إضافة المهارات بنجاح' : 'فشل إضافة المهارات'),
+                        backgroundColor: success ? AppTheme.success : AppTheme.error,
+                      ),
+                    );
+                  }
+                },
+                child: Text('إضافة', style: GoogleFonts.cairo()),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -6,6 +6,9 @@ import 'core/theme/app_theme.dart';
 import 'providers/auth_provider.dart';
 import 'providers/engineer_provider.dart';
 import 'providers/worker_provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'l10n/app_localizations.dart';
+import 'providers/locale_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,16 +40,26 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider.value(value: _authProvider),
         ChangeNotifierProvider(create: (_) => EngineerProvider()),
         ChangeNotifierProvider(create: (_) => WorkerProvider()),
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),
       ],
-      child: MaterialApp.router(
-        title: 'إدارة مشاريع البناء',
-        theme: AppTheme.lightTheme,
-        routerConfig: _router,
-        debugShowCheckedModeBanner: false,
-        builder: (context, child) {
-          return Directionality(
-            textDirection: TextDirection.rtl,
-            child: child!,
+      child: Consumer<LocaleProvider>(
+        builder: (context, localeProvider, child) {
+          return MaterialApp.router(
+            title: 'Management App',
+            theme: AppTheme.getTheme(localeProvider.locale),
+            routerConfig: _router,
+            debugShowCheckedModeBanner: false,
+            locale: localeProvider.locale,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('ar'),
+              Locale('en'),
+            ],
           );
         },
       ),

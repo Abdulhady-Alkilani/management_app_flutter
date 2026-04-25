@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/locale_provider.dart';
 import 'package:go_router/go_router.dart';
+import '../../l10n/app_localizations.dart';
 
 class WorkerHomeScreen extends StatelessWidget {
   const WorkerHomeScreen({super.key});
@@ -13,13 +14,47 @@ class WorkerHomeScreen extends StatelessWidget {
     final user = context.watch<AuthProvider>().currentUser;
     final displayName = user?.name ?? '${user?.firstName ?? ''} ${user?.lastName ?? ''}'.trim();
 
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('لوحة العامل'),
+        title: Text(l10n.workerDashboard),
         actions: [
+          // ── Language Toggle ──
+          Consumer<LocaleProvider>(
+            builder: (context, localeProvider, _) {
+              final isArabic = localeProvider.locale.languageCode == 'ar';
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryBlue.withAlpha(25),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: InkWell(
+                  onTap: () => localeProvider.toggleLocale(),
+                  borderRadius: BorderRadius.circular(10),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.translate_rounded, size: 18),
+                        const SizedBox(width: 4),
+                        Text(
+                          isArabic ? 'EN' : 'ع',
+                          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.logout_rounded),
-            tooltip: 'تسجيل الخروج',
+            tooltip: l10n.logout,
             onPressed: () => _showLogoutDialog(context),
           ),
         ],
@@ -31,18 +66,17 @@ class WorkerHomeScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ── Welcome Header ──
-              _buildWelcomeHeader(displayName),
+              _buildWelcomeHeader(context, displayName),
               const SizedBox(height: 28),
 
               // ── Info Banner ──
-              _buildInfoBanner(),
+              _buildInfoBanner(context),
               const SizedBox(height: 28),
 
               // ── Menu Grid ──
               Text(
                 'القائمة الرئيسية',
-                style: GoogleFonts.cairo(
-                  fontSize: 18,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w700,
                   color: AppTheme.textPrimary,
                 ),
@@ -57,7 +91,7 @@ class WorkerHomeScreen extends StatelessWidget {
                 children: [
                   _DashboardCard(
                     icon: Icons.assignment_rounded,
-                    title: 'المهام',
+                    title: l10n.tasks,
                     subtitle: 'متابعة المهام',
                     gradient: const LinearGradient(
                       colors: [Color(0xFF1E88E5), Color(0xFF42A5F5)],
@@ -68,7 +102,7 @@ class WorkerHomeScreen extends StatelessWidget {
                   ),
                   _DashboardCard(
                     icon: Icons.construction_rounded,
-                    title: 'الورشات',
+                    title: l10n.workshops,
                     subtitle: 'الورشات المعيّنة',
                     gradient: const LinearGradient(
                       colors: [Color(0xFF00897B), Color(0xFF26A69A)],
@@ -79,7 +113,7 @@ class WorkerHomeScreen extends StatelessWidget {
                   ),
                   _DashboardCard(
                     icon: Icons.person_rounded,
-                    title: 'السيرة الذاتية',
+                    title: l10n.cvTitle,
                     subtitle: 'الملف الشخصي',
                     gradient: const LinearGradient(
                       colors: [Color(0xFF6A1B9A), Color(0xFFAB47BC)],
@@ -97,7 +131,7 @@ class WorkerHomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildWelcomeHeader(String name) {
+  Widget _buildWelcomeHeader(BuildContext context, String name) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -131,15 +165,13 @@ class WorkerHomeScreen extends StatelessWidget {
               children: [
                 Text(
                   'مرحباً 👋',
-                  style: GoogleFonts.cairo(
-                    fontSize: 14,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Colors.white.withAlpha(200),
                   ),
                 ),
                 Text(
                   name.isNotEmpty ? name : 'العامل',
-                  style: GoogleFonts.cairo(
-                    fontSize: 20,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
                   ),
@@ -153,7 +185,7 @@ class WorkerHomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoBanner() {
+  Widget _buildInfoBanner(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       decoration: BoxDecoration(
@@ -169,8 +201,7 @@ class WorkerHomeScreen extends StatelessWidget {
           Expanded(
             child: Text(
               'يمكنك متابعة مهامك وورشاتك من هنا',
-              style: GoogleFonts.cairo(
-                fontSize: 13,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: AppTheme.primaryMid,
                 fontWeight: FontWeight.w500,
               ),
@@ -182,17 +213,16 @@ class WorkerHomeScreen extends StatelessWidget {
   }
 
   void _showLogoutDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('تسجيل الخروج',
-            style: GoogleFonts.cairo(fontWeight: FontWeight.w700)),
-        content: Text('هل أنت متأكد من تسجيل الخروج؟',
-            style: GoogleFonts.cairo()),
+        title: Text(l10n.logout, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+        content: Text('هل أنت متأكد من تسجيل الخروج؟'),
         actions: [
           TextButton(
-            child: Text('إلغاء', style: GoogleFonts.cairo()),
+            child: Text(l10n.cancel),
             onPressed: () => Navigator.pop(ctx),
           ),
           ElevatedButton(
@@ -200,7 +230,7 @@ class WorkerHomeScreen extends StatelessWidget {
               backgroundColor: AppTheme.error,
               foregroundColor: Colors.white,
             ),
-            child: Text('خروج', style: GoogleFonts.cairo()),
+            child: Text(l10n.logout),
             onPressed: () async {
               Navigator.pop(ctx);
               await context.read<AuthProvider>().logout();
@@ -266,16 +296,14 @@ class _DashboardCard extends StatelessWidget {
                 const Spacer(),
                 Text(
                   title,
-                  style: GoogleFonts.cairo(
-                    fontSize: 17,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
                   ),
                 ),
                 Text(
                   subtitle,
-                  style: GoogleFonts.cairo(
-                    fontSize: 12,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Colors.white.withAlpha(190),
                   ),
                 ),
